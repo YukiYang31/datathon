@@ -1,3 +1,7 @@
+# to run, do
+# streamlit run app.py
+
+
 import streamlit as st
 import streamlit.components.v1 as components
 import plotly.express as px
@@ -16,9 +20,9 @@ st.title("Gender Gap ")
 
 st.markdown("## Research Question")
 
-st.write()
+st.write("How do employment gender gap manifest in countries of different income level?")
 
-st.markdown("## Data related to our research question")
+# st.markdown("## Data related to our research question")
 
 # drop regions
 df_merged = df_merged.dropna(axis=0, subset=['Income Group', 'Region', 'employ_pop_ratio_15plus_female', 'employ_pop_ratio_15plus_male'])
@@ -72,105 +76,25 @@ fig.add_shape(
     line=dict(color="red", width=2, dash="dash")  # Red dashed reference line
 )
 st.plotly_chart(fig, use_container_width=True)
-
+st.write("From this chart, we see that almost every country has a higher male employment and very little correlate with the country's income level.")
 
 #####################################################################
 st.markdown("### Average Gender Employment Gap (15+) by Region")
 
-# Convert Year to numeric
-df_merged["Year"] = pd.to_numeric(df_merged["Year"])
+with open("15region.html", "r") as f:
+    html_string = f.read()
 
-# Get the average gender gap for each country
-df_summary2 = df_merged.groupby(["Country.Name", "Region"]).agg(
-    avg_gap=("gender_gap", "mean")
-).reset_index()
+# Embed it in your Streamlit app
+components.html(html_string, height=600, width=900)
+st.write("From this chart, we can see that middle east and north africa has the biggest gender gap.")
 
-# Sort the data by the average gender gap (ascending order)
-df_summary2 = df_summary2.sort_values(by="avg_gap", ascending=True)
+#####################################################################st.markdown("### Average Gender Employment Gap (15+) by Region (Shown in an alternative way)")
+with open("15regionA.html", "r") as f:
+    html_string = f.read()
 
-# Define a custom color scale using hex codes for green and orange shades
-custom_colorscale = [
-    [0, "#006400"],  # Dark Green
-    [0.25, "#90EE90"],  # Light Green
-    [0.5, "#FFB84D"],  # Light Orange
-    [0.75, "#FF8C00"],  # Dark Orange
-    [1, "#FF4500"]  # Red-Orange
-]
-
-# Create a bar plot
-fig = px.bar(
-    df_summary2,
-    x="Country.Name",
-    y="avg_gap",
-    color="Region",  # Color by Region
-    color_continuous_scale=custom_colorscale,  # Custom color scale
-    hover_data=["Country.Name", "Region"],
-    title="Average Gender Employment Gap (15+) by Region",
-    labels={"avg_gap": "Average Gender Gap (Male - Female Employment)", "Country.Name": "Country"},
-    category_orders={"Country.Name": df_summary2["Country.Name"].tolist()}  # Ensure sorted order of countries
-)
-
-# Add a reference line for equal male/female ratio (avg_gap = 0)
-fig.add_shape(
-    type="line",
-    x0=-0.5,  # Start position of the line (before the first bar)
-    y0=0,  # The y position for the line (0 gap)
-    x1=len(df_summary2) - 0.5,  # End position of the line (after the last bar)
-    y1=0,  # Keep the line at y = 0
-    line=dict(color="red", width=2, dash="dash")  # Red dashed line
-)
-st.plotly_chart(fig, use_container_width=True)
-
-#####################################################################
-st.markdown("### Average Gender Employment Gap (15+) by Region (Shown in an alternative way)")
-
-# Convert Year to numeric
-df_merged["Year"] = pd.to_numeric(df_merged["Year"])
-
-# Get the average gender gap for each country
-df_summary2 = df_merged.groupby(["Country.Name", "Region"]).agg(
-    avg_gap=("gender_gap", "mean")
-).reset_index()
-
-# Sort the data by the average gender gap (ascending order)
-df_summary2 = df_summary2.sort_values(by="avg_gap", ascending=True)
-
-# Define a custom color scale using hex codes for green and orange shades
-custom_colorscale = [
-    [0, "#006400"],  # Dark Green
-    [0.25, "#90EE90"],  # Light Green
-    [0.5, "#FFB84D"],  # Light Orange
-    [0.75, "#FF8C00"],  # Dark Orange
-    [1, "#FF4500"]  # Red-Orange
-]
-
-# Force order to maintain sorting in plot
-category_order = df_summary["Country.Name"].tolist()
-
-# Create a bar plot
-fig = px.bar(
-    df_summary2,
-    x="Country.Name",
-    y="avg_gap",
-    color="Region",  # Color by Region
-    color_continuous_scale=custom_colorscale,  # Custom color scale
-    hover_data=["Country.Name", "Region"],
-    title="Average Gender Employment Gap (15+) by Region",
-    labels={"avg_gap": "Average Gender Gap (Male - Female Employment)", "Country.Name": "Country"},
-    category_orders={"Region": df_summary2["Region"].tolist()}  # Ensure sorted order of countries
-)
-
-# Add a reference line for equal male/female ratio (avg_gap = 0)
-fig.add_shape(
-    type="line",
-    x0=-0.5,  # Start position of the line (before the first bar)
-    y0=0,  # The y position for the line (0 gap)
-    x1=len(df_summary2) - 0.5,  # End position of the line (after the last bar)
-    y1=0,  # Keep the line at y = 0
-    line=dict(color="red", width=2, dash="dash")  # Red dashed line
-)
-st.plotly_chart(fig, use_container_width=True)
-
+# Embed it in your Streamlit app
+components.html(html_string, height=600, width=900)
+st.write("Organizing the chart grouping by regions, we can further see that middle east and north Africa has the biggest average gender gap. South Asia has the biggest variation in gender gaps. ")
 
 #####################################################################
 st.markdown("### Average Gender Employment Gap (15-24) by Income Group")
@@ -240,6 +164,7 @@ fig.add_shape(
 
 st.plotly_chart(fig, use_container_width=True)
 
+##################################################################
 st.markdown("### Average Gender Employment Gap (15-24 and 15+) by Income Group")
 with open("youngGenderGapIncome.html", "r") as f:
     html_string = f.read()
@@ -247,4 +172,40 @@ with open("youngGenderGapIncome.html", "r") as f:
 # Embed it in your Streamlit app
 components.html(html_string, height=600, width=900)
 
+
+st.markdown("### Gender Gap in Self-Employment by Income Group")
+with open("self.html", "r") as f:
+    html_string = f.read()
+
+# Embed it in your Streamlit app
+components.html(html_string, height=600, width=900)
+
+
+st.markdown("### Gender Gap in Vulnerable Employment by Income Group")
+with open("vulnerable.html", "r") as f:
+    html_string = f.read()
+
+# Embed it in your Streamlit app
+components.html(html_string, height=600, width=900)
+
+
+##################################################################
+st.markdown("### Gender Gap in Contributing Workers by Income Group")
+with open("contirbute.html", "r") as f:
+    html_string = f.read()
+
+# Embed it in your Streamlit app
+components.html(html_string, height=600, width=900)
+
+
+##################################################################
+
+st.markdown("### Change in Gender Employment Gap (15+) Over Time (2006-2015) by Country")
+with open("changesOvertime.html", "r") as f:
+    html_string = f.read()
+
+# Embed it in your Streamlit app
+components.html(html_string, height=600, width=900)
+
 st.markdown("Conclusion")
+st.write("")
